@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+Future<void> main() async {
   runApp(MyApp());
 }
 
@@ -9,7 +10,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return  MaterialApp(
       home: HomePage(),
       debugShowCheckedModeBanner: false,
     );
@@ -24,11 +25,39 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  TextEditingController controller = TextEditingController();
+
+  void saveMyData(String text) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString("text", text);
+  }
+
+  void readMyData() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? savedData = pref.getString("text");
+
+    if (savedData != null) {
+      controller.text = savedData;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    readMyData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Container(child: TextField(),),
+        child: TextField(
+          controller: controller,
+          onChanged: (val) {
+            saveMyData(val);
+            print(val);
+          },
+        ),
       ),
     );
   }
